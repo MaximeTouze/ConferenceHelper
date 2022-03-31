@@ -29,3 +29,27 @@ const DisplaysButtonsFunction = function (display) {
   selected_display = display;
   display_update();
 }
+
+const LikeSentence = function (sentence_num) {
+  ChangeSentenceLikeButtonToDislike(sentence_num);
+  $.ajax({
+    type:'POST',
+    url:'/likeSentence',
+    data:{
+      'nb_sentence':sentence_num
+    },
+    success:function(response) {}
+ });
+}
+
+const DislikeSentence = function (sentence_num) {
+  ChangeSentenceDislikeButtonToLike(sentence_num);
+  $.ajax({
+    type:'POST',
+    url:'/UnlikeSentence',
+    data:{
+      'nb_sentence':sentence_num
+    },
+    success:function(response) {}
+ });
+}

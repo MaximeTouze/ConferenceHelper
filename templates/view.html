@@ -1,4 +1,4 @@
-<! DOCTYPE html>
+<!DOCTYPE html>
 
 <html>
   <head>
@@ -10,7 +10,9 @@
     <title>View</title>
 
     <!-- Stylesheets -->
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/index.css') }}">
+
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/common.css') }}">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/view.css') }}">
   </head>
 
 
@@ -42,18 +44,18 @@
         </div>
       </div>
       <div id="grid-column-display">
-        <div id="displayPanel" class="cell basic_color_cell">
+        <div id="displayPanel" class="cell basic_color_cell view-display">
         </div>
 
         <div id="grid-column-display-selection">
-          <div id="word_cloud-button" class="cell basic_color_cell"
-            onclick="DisplaysButtonsFunction('word_cloud')">
+          <div id="word_cloud-button" class="cell selected_color_cell"
+            onclick="DisplaysButtonsFunction(WORD_CLOUD)">
             word cloud
           </div>
 
-          <div id="display2-button" class="cell basic_color_cell"
-            onclick="DisplaysButtonsFunction('display2')">
-            display2
+          <div id="sentences-button" class="cell basic_color_cell"
+            onclick="DisplaysButtonsFunction(SENTENCES)">
+            sentences
           </div>
         </div>
       </div>
@@ -62,12 +64,23 @@
 
   <footer>
     <!-- Scripts (ordre important) -->
+  	<script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+
     <script type="text/javascript" src="{{ url_for('static',filename='js/init.js') }}"></script>
 
 
     <script type="text/javascript" src="{{ url_for('static',filename='js/display_generators.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static',filename='js/display_updator.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/display_updator/display_updator_values.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/display_updator/display_updator_custommer.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/display_updator/display_updator_common.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/tools/display_tools.js') }}"></script>
+
+
 
     <script type="text/javascript" src="{{ url_for('static',filename='js/button-manager.js') }}"></script>
+
+    <script type="text/javascript">
+      Updator();
+    </script>
   </footer>
 </html>
