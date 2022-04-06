@@ -75,19 +75,6 @@ var Recorder = exports.Recorder = (function () {
 
         var self = {};
         this.worker = new _inlineWorker2.default(function () {
-          // Personal code :::
-/*          function loadFakeDOMforJQuery(){var document = self.document = {parentNode: null, nodeType: 9, toString: function() {return "FakeDocument"}};var window = self.window = self;var fakeElement = Object.create(document);fakeElement.nodeType = 1;fakeElement.toString=function() {return "FakeElement"};fakeElement.parentNode = fakeElement.firstChild = fakeElement.lastChild = fakeElement;fakeElement.ownerDocument = document;document.head = document.body = fakeElement;document.ownerDocument = document.documentElement = document;document.getElementById = document.createElement = function() {return fakeElement;};document.createDocumentFragment = function() {return this;};
-    document.getElementsByTagName = document.getElementsByClassName = function() {return [fakeElement];};document.getAttribute = document.setAttribute = document.removeChild =
-    document.addEventListener = document.removeEventListener =function() {return null;};document.cloneNode = document.appendChild = function() {return this;};document.appendChild = function(child) {return child;};console.log("loaded FAKE DOM for JQuery");}
-  */  // Personnal modification
-  //  loadFakeDOMforJQuery();
-    //importScripts("https://code.jquery.com/jquery-3.5.1.js");
-    // end
-            let socket = new WebSocket("wss://127.0.0.1:5000/soudtesting");
-            socket.onerror = function (error) {
-              console.error(error);
-            }
-
 
             var recLength = 0,
                 recBuffers = [],
@@ -121,6 +108,9 @@ var Recorder = exports.Recorder = (function () {
 
             }
 
+//////////////////////////////////////////////////////////////////
+            //Personnal modifications :
+//////////////////////////////////////////////////////////////////
             const LIMIT = 0.0005;
             const SENTENCE_STOP_TIME = 3;
             //nb of iterations without talking
@@ -133,63 +123,61 @@ var Recorder = exports.Recorder = (function () {
                 nb_off++;
                 if(nb_off == SENTENCE_STOP_TIME) {
                   // Request the transcription
-
-                  console.log("transmission du son car fin de phrase", this);
                   send_buffer_to_transcription(sound_buffer);
-                  send_as_socket();
                 }
               }
             }
-            function send_as_socket() {
-              socket.send('my message');
-            }
 
-            //Personnal modifications :
             function send_buffer_to_transcription(sound_buffer) {
-              // no jquery in workers
+              // no jquery in workers, and the URL needs to be complete
 
-              console.log('je vais jusque là');
-              console.log('je vais jusque là 2');
               var request = new XMLHttpRequest();
-              var url = "'/updateSound2'";
+              var url = "http://127.0.0.1:5000/updateSound2";
               request.open("POST", url, true);
-              request.setRequestHeader("Content-Type", "application/json");
+              request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
               request.onreadystatechange = function () {
                   if (request.readyState === 4 && request.status === 200) {
-                      console.log("son transmis");
+                      console.log("son transmis et reçu!");
                   }
               };
-              console.log('je vais jusque là');
+
               var data = {
-                audioBuffer:JSON.stringify(Array(new Int16Array(sound_buffer)))
+                'audioBuffer':JSON.stringify(Array(new Int16Array(prepare_wave_datas().buffer)))
               }
 
-              request.send(data);
+              request.send('audioBuffer='+ JSON.stringify(Array(new Int16Array(prepare_wave_datas().buffer))));
             }
+
+            function prepare_wave_datas() {
+              var buffers = [];
+              for (var channel = 0; channel < numChannels; channel++) {
+                  buffers.push(mergeBuffers(recBuffers[channel], recLength));
+              }
+              var interleaved = undefined;
+              if (numChannels === 2) {
+                  interleaved = interleave(buffers[0], buffers[1]);
+              } else {
+                  interleaved = buffers[0];
+              }
+              return encodeWAV(interleaved);
+            }
+
+//////////////////////////////////////////////////////////////////
             // End of
+//////////////////////////////////////////////////////////////////
 
             function record(inputBuffer) {
                 for (var channel = 0; channel < numChannels; channel++) {
                     recBuffers[channel].push(inputBuffer[channel]);
-                    //console.log(inputBuffer[channel]);
                 }
+                recLength += inputBuffer[0].length;
                 // streaming_record is a personnal addition
                 streaming_record(inputBuffer[channel-1][0], recBuffers);
-                recLength += inputBuffer[0].length;
             }
 
             function exportWAV(type) {
-                var buffers = [];
-                for (var channel = 0; channel < numChannels; channel++) {
-                    buffers.push(mergeBuffers(recBuffers[channel], recLength));
-                }
-                var interleaved = undefined;
-                if (numChannels === 2) {
-                    interleaved = interleave(buffers[0], buffers[1]);
-                } else {
-                    interleaved = buffers[0];
-                }
-                var dataview = encodeWAV(interleaved);
+
+                var dataview = prepare_wave_datas();
                 var audioBlob = new Blob([dataview], { type: type });
 
                 self.postMessage({ command: 'exportWAV', data: audioBlob });

@@ -36,7 +36,8 @@
 
 	var fileReader = new FileReader();
 	fileReader.onload = function() {
-    buffer = this.result;
+		console.log("résultante qui fonctionne", Array(new Int16Array(this.result)))
+    /*buffer = this.result;
 		$.ajax({
 			type:'POST',
 			url:'/updateSound2',
@@ -47,7 +48,7 @@
 			{
 				console.log("son transmis", new Int32Array(buffer));
 			}
-	 });
+	 });*/
 };
 
 
@@ -111,17 +112,7 @@
       li.appendChild(hf);
       recordingslist.appendChild(li);
 
-			$.ajax({
-				type:'POST',
-				url:'/updateSound',
-				data:{
-					url:wurl
-				},
-				success:function()
-				{
-					console.log("transmis pour le son ::: " + Array(myblob));
-				}
-			});
+
 		});
   }
 

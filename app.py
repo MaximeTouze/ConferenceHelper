@@ -1,13 +1,14 @@
 from flask import Flask, render_template, request, jsonify
 import my_python.word_cloud_generation.word_cloud_generation as word_cloud_generation
 import my_python.translation.translation as translation
-#import my_python.transcription.transcription as transcription
+import my_python.transcription.transcription as transcription
 from urllib.request import urlretrieve
 import wave, struct
 import json
 import js2py
 import re
 from flask_sockets import Sockets
+import os as os
 
 import my_python.api.likeSystem as likeSystem
 
@@ -16,6 +17,7 @@ sentence_like = {0:5, 1:2}
 app = Flask(__name__, template_folder='templates')
 app.debug = True
 
+#app.run(ssl_context="adhoc")
 
 ## The app's html view ::
 
@@ -47,8 +49,12 @@ def update():
 
 @app.route("/updateSound2", methods=['POST'])
 def updateSound2():
-    print('called')
+    #print('called', request.form)
     audioBuffer = request.form.get('audioBuffer')
+
+    if os.path.exists("demofile.txt"):
+        os.remove("demofile.txt")
+
     #print(audioBuffer)
     file_path = "current.wav"
     file = wave.open(file_path, "wb")
@@ -58,6 +64,7 @@ def updateSound2():
     file.setframerate(sampleRate)
 
     audioBuffer = re.sub(r'"\d*":', '', audioBuffer)
+    #print(audioBuffer)
     buffer = audioBuffer.split(',')[2:-2]
     for sample in buffer:
         data = struct.pack('<h', int(sample))
@@ -96,8 +103,5 @@ def Mostly_liked_sentences():
     return likeSystem.Mostly_liked_sentences()
 
 
-# Sockets test
-sockets = Sockets(app)
-@sockets.route('/soudtesting')
-def soudtesting(ws):
-    print(ws)
+if __name__== '__main__':
+    app.run()

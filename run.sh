@@ -1,3 +1,3 @@
 env\Scripts\activate;
 set FLASK_APP=app.py;
-flask run;
+flask run -p 443;
