@@ -1,7 +1,7 @@
 // Images extentions
 const IMG_TYPE = 'png';
 // Languages list
-const LANGAGES = ["eng", "fr", "esp", "ara"];
+const LANGUAGES = ["eng", "fr", "esp", "ara"];
 // Time before img update (ms)
 const WAITING_TIME = 10000;
 // Number max of sentences

@@ -37,6 +37,7 @@ function _classCallCheck(instance, Constructor) {
 
 var Recorder = exports.Recorder = (function () {
     function Recorder(source, cfg) {
+
         var _this = this;
 
         _classCallCheck(this, Recorder);
@@ -74,6 +75,20 @@ var Recorder = exports.Recorder = (function () {
 
         var self = {};
         this.worker = new _inlineWorker2.default(function () {
+          // Personal code :::
+/*          function loadFakeDOMforJQuery(){var document = self.document = {parentNode: null, nodeType: 9, toString: function() {return "FakeDocument"}};var window = self.window = self;var fakeElement = Object.create(document);fakeElement.nodeType = 1;fakeElement.toString=function() {return "FakeElement"};fakeElement.parentNode = fakeElement.firstChild = fakeElement.lastChild = fakeElement;fakeElement.ownerDocument = document;document.head = document.body = fakeElement;document.ownerDocument = document.documentElement = document;document.getElementById = document.createElement = function() {return fakeElement;};document.createDocumentFragment = function() {return this;};
+    document.getElementsByTagName = document.getElementsByClassName = function() {return [fakeElement];};document.getAttribute = document.setAttribute = document.removeChild =
+    document.addEventListener = document.removeEventListener =function() {return null;};document.cloneNode = document.appendChild = function() {return this;};document.appendChild = function(child) {return child;};console.log("loaded FAKE DOM for JQuery");}
+  */  // Personnal modification
+  //  loadFakeDOMforJQuery();
+    //importScripts("https://code.jquery.com/jquery-3.5.1.js");
+    // end
+            let socket = new WebSocket("wss://127.0.0.1:5000/soudtesting");
+            socket.onerror = function (error) {
+              console.error(error);
+            }
+
+
             var recLength = 0,
                 recBuffers = [],
                 sampleRate = undefined,
@@ -103,12 +118,63 @@ var Recorder = exports.Recorder = (function () {
                 sampleRate = config.sampleRate;
                 numChannels = config.numChannels;
                 initBuffers();
+
             }
+
+            const LIMIT = 0.0005;
+            const SENTENCE_STOP_TIME = 3;
+            //nb of iterations without talking
+            let nb_off = 0;
+            function streaming_record(value, sound_buffer) {
+              // if peaople are talking and usefull to change the nb_off value
+              if (nb_off && (value> LIMIT || value< (0-LIMIT))) {
+                nb_off = 0;
+              } else {
+                nb_off++;
+                if(nb_off == SENTENCE_STOP_TIME) {
+                  // Request the transcription
+
+                  console.log("transmission du son car fin de phrase", this);
+                  send_buffer_to_transcription(sound_buffer);
+                  send_as_socket();
+                }
+              }
+            }
+            function send_as_socket() {
+              socket.send('my message');
+            }
+
+            //Personnal modifications :
+            function send_buffer_to_transcription(sound_buffer) {
+              // no jquery in workers
+
+              console.log('je vais jusque là');
+              console.log('je vais jusque là 2');
+              var request = new XMLHttpRequest();
+              var url = "'/updateSound2'";
+              request.open("POST", url, true);
+              request.setRequestHeader("Content-Type", "application/json");
+              request.onreadystatechange = function () {
+                  if (request.readyState === 4 && request.status === 200) {
+                      console.log("son transmis");
+                  }
+              };
+              console.log('je vais jusque là');
+              var data = {
+                audioBuffer:JSON.stringify(Array(new Int16Array(sound_buffer)))
+              }
+
+              request.send(data);
+            }
+            // End of
 
             function record(inputBuffer) {
                 for (var channel = 0; channel < numChannels; channel++) {
                     recBuffers[channel].push(inputBuffer[channel]);
+                    //console.log(inputBuffer[channel]);
                 }
+                // streaming_record is a personnal addition
+                streaming_record(inputBuffer[channel-1][0], recBuffers);
                 recLength += inputBuffer[0].length;
             }
 

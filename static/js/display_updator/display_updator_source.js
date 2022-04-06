@@ -13,14 +13,12 @@ function showMostlyLikedSentences() {
       const memory = elt.innerHTML;
       elt.innerHTML = "";
       let liked_sentences = response.liked_sentences;
-
-      for (var i = 0; i < liked_sentences.length; i++) {
-        if (!document.getElementById(getSentenceId(i))) {
-          let current_liked_sentence = liked_sentences[i];
-          let current_sentence = current_liked_sentence.sentence;
-          let current_nb_likes = current_liked_sentence.nb_likes;
-          elt.innerHTML += GenerateSentence(current_sentence,  i, getSentenceImgId(i, true), false, current_nb_likes);
-        }
+      console.warn(liked_sentences);
+      for (var i = 0; i< LANGUAGES.length; i++) {
+        let current_liked_sentence = liked_sentences[LANGUAGES[i]];
+        let current_sentence = current_liked_sentence.sentence;
+        let current_nb_likes = LANGUAGES[i] + ' ' + current_liked_sentence.nb_likes;
+        elt.innerHTML += GenerateSentence(current_sentence,  i, getSentenceImgId(i, true), false, current_nb_likes);
       }
       elt.innerHTML += memory;
     }
@@ -30,9 +28,9 @@ function showMostlyLikedSentences() {
 // Function wiche permises to change the word cloud's language atomatically on each refreshing
 async function AutoLanguageUpdator() {
       while (continueUpdate) {
-        for (language in LANGAGES) {
+        for (language in LANGUAGES) {
           if( ! continueUpdate) break;
-          selected_language = LANGAGES[language];
+          selected_language = LANGUAGES[language];
           display_update();
           await sleep(WAITING_TIME);
         }
