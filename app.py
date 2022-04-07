@@ -7,7 +7,6 @@ import wave, struct
 import json
 import js2py
 import re
-from flask_sockets import Sockets
 import os as os
 
 import my_python.api.likeSystem as likeSystem
