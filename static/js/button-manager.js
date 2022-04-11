@@ -31,24 +31,26 @@ const DisplaysButtonsFunction = function (display) {
 }
 
 const LikeSentence = function (sentence_num) {
-  ChangeSentenceLikeButtonToDislike(sentence_num);
+  ChangeSentenceLikeButtonToUnlike(sentence_num);
   $.ajax({
     type:'POST',
     url:'/likeSentence',
     data:{
-      'nb_sentence':sentence_num
+      'nb_sentence':sentence_num,
+      'lang':selected_language
     },
     success:function(response) {}
  });
 }
 
-const DislikeSentence = function (sentence_num) {
-  ChangeSentenceDislikeButtonToLike(sentence_num);
+const UnlikeSentence = function (sentence_num) {
+  ChangeSentenceUnlikeButtonToLike(sentence_num);
   $.ajax({
     type:'POST',
     url:'/UnlikeSentence',
     data:{
-      'nb_sentence':sentence_num
+      'nb_sentence':sentence_num,
+      'lang':selected_language
     },
     success:function(response) {}
  });

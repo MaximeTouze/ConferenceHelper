@@ -47,10 +47,10 @@ const GenerateSentenceNbLikes = function (nb_sentence, nb_likes) {
   return '<div class="like-details">' + nb_likes + " <\div>";
 }
 
-const ChangeSentenceLikeButtonToDislike = function (nb_sentence) {
+const ChangeSentenceLikeButtonToUnlike = function (nb_sentence) {
   const imgId = getImageId(nb_sentence);
   const pict_id = getSentenceImgId(nb_sentence);
-  const onclickFunction = 'DislikeSentence(' + nb_sentence + ');';
+  const onclickFunction = 'UnlikeSentence(' + nb_sentence + ');';
   const imgStyle = "max-width:2% !important; max-height:2% !important;";
   document.getElementById(pict_id).innerHTML = GenerateExposedImg('green_thumbs_up.' + IMG_TYPE , style=imgStyle, onclick=onclickFunction, imgId);
 }

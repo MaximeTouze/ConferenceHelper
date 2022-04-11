@@ -15,7 +15,7 @@ sentence_like = {ENGLISH:{0:5, 5:2}, FRENCH:{1:5, 5:2}, ESPAGNOL:{3:5, 5:2}, ARA
 
 def LikeSentence(request):
     num_sentence = int(request.form.get('nb_sentence'))
-    lang = int(request.form.get('lang'))
+    lang = request.form.get('lang')
     try:
         sentence_like[lang][num_sentence]+=1
     except KeyError:
@@ -24,7 +24,7 @@ def LikeSentence(request):
 
 def UnlikeSentence(request):
     num_sentence = int(request.form.get('nb_sentence'))
-    lang = int(request.form.get('lang'))
+    lang = request.form.get('lang')
     sentence_like[lang][num_sentence]-=1
     print(sentence_like)
 
