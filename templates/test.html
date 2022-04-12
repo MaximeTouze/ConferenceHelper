@@ -37,7 +37,7 @@
 	var fileReader = new FileReader();
 	fileReader.onload = function() {
 		console.log("résultante qui fonctionne", Array(new Int16Array(this.result)))
-    /*buffer = this.result;
+    buffer = this.result;
 		$.ajax({
 			type:'POST',
 			url:'/updateSound2',
@@ -48,7 +48,7 @@
 			{
 				console.log("son transmis", new Int32Array(buffer));
 			}
-	 });*/
+	 });
 };
 
 
@@ -66,7 +66,7 @@
 
     recorder = new Recorder(input);
 		console.log(recorder);
-		recorder.context.onstatechange = function test_trigger(evt) {
+		recorder.context.onstatechange = function (evt) {
 			console.log(evt);
 		}
     __log('Recorder initialised.');
@@ -87,6 +87,7 @@
 
     // create WAV download link using audio data blob
     createDownloadLink();
+		
 
 		if(recorder) {
     recorder.clear();

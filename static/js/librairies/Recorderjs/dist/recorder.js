@@ -136,18 +136,20 @@ var Recorder = exports.Recorder = (function () {
               request.open("POST", url, true);
               request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
               request.onreadystatechange = function () {
+                // On the end message recieved
                   if (request.readyState === 4 && request.status === 200) {
-                      console.log("son transmis et reçu!");
+                      console.log("Sound transmited without issue!");
                   }
               };
 
-              var data = {
-                'audioBuffer':JSON.stringify(Array(new Int16Array(prepare_wave_datas().buffer)))
-              }
-
+              //Sending request
               request.send('audioBuffer='+ JSON.stringify(Array(new Int16Array(prepare_wave_datas().buffer))));
+
+              // Clear the current memory in order to don't send all the sound, but only what's not already sent
+              clear();
             }
 
+            // casts buffer values to wave file
             function prepare_wave_datas() {
               var buffers = [];
               for (var channel = 0; channel < numChannels; channel++) {

@@ -36,7 +36,6 @@ const GenerateSentenceImg = function (nb_sentence, pict_id, has_pict=true) {
     const onclickFunction = 'LikeSentence(' + nb_sentence + ');';
     const imgStyle = "max-width:2% !important; max-height:2% !important;";
     const imgId = getImageId(nb_sentence);
-    console.log(imgId);
     let img = GenerateExposedImg('grey_thumbs_up.' + IMG_TYPE , style=imgStyle, onclick=onclickFunction, imgId);
     return '<p id=' + pict_id + '>' + img + ' <\p>';
   }
