@@ -1,8 +1,4 @@
-
 from flask import Flask, render_template, request, jsonify
-import my_python.word_cloud_generation.word_cloud_generation as word_cloud_generation
-import my_python.translation.translation as translation
-import my_python.transcription.transcription as transcription
 from urllib.request import urlretrieve
 import wave, struct
 import json
@@ -10,14 +6,18 @@ import js2py
 import re
 import os as os
 
+
+import my_python.word_cloud_generation.word_cloud_generation as word_cloud_generation
+import my_python.transcription.transcription as transcription
+import my_python.translation.translation as translation
+import my_python.api.conf_manager as ConfManager
+import my_python.manager.cache_data_manager as CacheDataManager
 import my_python.api.likeSystem as likeSystem
 
-sample_sentences = ['Premiere Phrase', "ceci est la seconde phrase", "ho une troisieme", "petite 4eme au passage", "Puis une 5eme", "enfin une sixieme"]
-sentence_like = {0:5, 1:2}
+
 app = Flask(__name__, template_folder='templates')
 app.debug = True
 
-audio_memory = []
 
 #app.run(ssl_context="adhoc")
 
@@ -53,6 +53,9 @@ def update():
 def updateSound2():
     #print('called', request.form)
     audioBuffer = request.form.get('audioBuffer')
+    room = request.form.get('room')
+    lang = ConfManager.getLangFromRoom(room)
+
 
     if os.path.exists("demofile.txt"):
         os.remove("demofile.txt")
@@ -65,11 +68,9 @@ def updateSound2():
     sampleRate = 44100.0*2 # hertz
     file.setsampwidth(2)
     file.setframerate(sampleRate)
-    try:
-        print(";;;", audio_memory[0])
-        print (";;;;", audio_memory[0][0])
-    except:
-        pass
+
+    audio_memory = getSound_memory_room(room)
+
     # Create the wave with the past memory
     for sound_part in audio_memory:
         for item in sound_part:
@@ -79,21 +80,41 @@ def updateSound2():
     audioBuffer = re.sub(r'"\d*":', '', audioBuffer)
     #print(audioBuffer)
     buffer = audioBuffer.split(',')[2:-2]
-    memory = []
     buffer = Clear(buffer)
+
     for sample in buffer:
         data = struct.pack('<h', int(sample))
-        memory.append(sample)
         file.writeframesraw( struct.pack('<h', int(sample)) )
 
-    # keep in memory the new datas
-    audio_memory.append(buffer)
+    addSoundMemory(room, audioBuffer)
 
-    print('============END===========')
+    print('============ Recording getted ===========')
     # Don t forgot to close
     file.close()
-    #res_transcription = transcription.my_transcription(file_path)
-    #print(res_transcription)
+    (trans, time) = transcription.process_wav_google_cloud(file_path, language="en-US", target="test")
+    print(trans)
+    print(type(trans))
+    sentences = trans.split('\n')
+    addDisplayed_sentences_room_language(room, language, sentences)
+
+    if (len(sentences) >= 2):
+        removeExcess(room, language)
+
+    # For each other language than the spoken one
+    for lang in LANGUAGES:
+
+        # traduction for each language except the spoken one
+        if (lang != language):
+            # For each sentence
+            for sentence in sentences:
+                # translate & add the sentence to the displayed_sentences list
+                trad_sentence = GoogleTranslator(source='auto').translate(sentence)
+                addDisplayed_sentences_room_language(room, lang, trad_sentence)
+                getCloudFromTextAndLanguage(trad_sentence, lang, room)
+        else :
+            for sentence in sentences:
+                getCloudFromTextAndLanguage(trad_sentence, lang, room)
+
     #word_cloud_generation.getCloudFromTextAndLanguage(text, language)
     return render_template('test.html')
 
@@ -105,12 +126,21 @@ def translate():
     print(request.form.get('text'))
     return render_template('record.html')
 
+
+
+
 @app.route("/sentences", methods=['GET'])
 def sentences():
     num_sentence = int(request.args.get('nb_sentence'))
-    if(num_sentence>=len(sample_sentences)):
-        return jsonify({'sentences': []})
-    return jsonify({'sentences': [sample_sentences[num_sentence]]})
+    room = int(request.args.get('room'))
+    lang = request.args.get('lang')
+
+    sentences = CacheDataManager.getDisplayed_sentences_room_language_from(room, lang, num_sentence)
+    return jsonify({'sentences': sentences})
+
+
+
+########### Likes ###############
 
 @app.route("/likeSentence", methods=['POST'])
 def LikeSentence():
@@ -122,9 +152,28 @@ def UnlikeSentence():
     likeSystem.UnlikeSentence(request)
     return render_template('view.html')
 
+################################
+
+
 @app.route("/mostly_liked_sentences", methods=['GET'])
 def Mostly_liked_sentences():
     return likeSystem.Mostly_liked_sentences()
+
+@app.route("/startConf", methods=['POST'])
+def startConf():
+    room = int(request.args.get('room'))
+    lang = int(request.args.get('lang'))
+    ConfManager.startConf(room, lang)
+
+@app.route("/stopConf", methods=['POST'])
+def stopConf():
+    room = int(request.args.get('room'))
+    ConfManager.setConf_questions_state(room)
+
+@app.route("/endConf", methods=['POST'])
+def endConf():
+    room = int(request.args.get('room'))
+    ConfManager.endConf(room)
 
 
 def Clear(list):

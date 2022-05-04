@@ -1,0 +1,6 @@
+ENGLISH = "eng"
+FRENCH = "fr"
+ESPAGNOL = "esp"
+ARAB = "ara"
+
+LANGUAGES = [ENGLISH, FRENCH, ESPAGNOL, ARAB]

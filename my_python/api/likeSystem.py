@@ -1,17 +1,7 @@
 from flask import jsonify
-
-sample_sentences = ['Premiere Phrase', "ceci est la seconde phrase", "ho une troisieme", "petite 4eme au passage", "Puis une 5eme", "enfin une sixieme"]
-
-ENGLISH = "eng"
-FRENCH = "fr"
-ESPAGNOL = "esp"
-ARAB = "ara"
-
-LANGUAGES = [ENGLISH, FRENCH, ESPAGNOL, ARAB]
+from my_python.const.lang_const import *
 
 sentence_like = {ENGLISH:{0:5, 5:2}, FRENCH:{1:5, 5:2}, ESPAGNOL:{3:5, 5:2}, ARAB:{4:5, 5:2}}
-
-
 
 def LikeSentence(request):
     num_sentence = int(request.form.get('nb_sentence'))
@@ -27,8 +17,6 @@ def UnlikeSentence(request):
     lang = request.form.get('lang')
     sentence_like[lang][num_sentence]-=1
     print(sentence_like)
-
-
 
 
 # returns the most liked sentence for each language

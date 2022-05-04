@@ -1,7 +1,7 @@
 from google.cloud import translate
 import os
 
-credential_path = "C:\\Users\Mamadou\Documents\Cours\M1 ATAL\S2\TER\Google Speech API\speechtotextapi-340414-1e2134d625a1.json"
+credential_path = "/credentials/speechtotextapi.json"
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
 
 def translate_text(text, source_lang="en-US", target_lang="fr-FR", project_id="speechtotextapi-340414"):

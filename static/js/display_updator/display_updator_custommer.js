@@ -1,9 +1,15 @@
+// MOCKS
+room = 1
+//
+
 function updateSentence () {
   $.ajax({
     type:'GET',
     url:'/sentences',
     data:{
-      'nb_sentence':sentences.length
+      'nb_sentence':sentences.length,
+      'room':room,
+      'lang':selected_language
     },
     success:function(response)
     {
